@@ -242,12 +242,36 @@
 
             const calculateScore = () => {
                 const values = Object.values(storedParts);
-                const firstStyle = values[0];
-                const isPerfect = values.every(style => style === firstStyle);
+                
+                // 計算每個樣式出現的次數
+                const counts = {};
+                values.forEach(val => {
+                    counts[val] = (counts[val] || 0) + 1;
+                });
+                
+                // 找出重複次數最多的數量 (maxCount)
+                // 例如：3個綠色、1個紅色 -> maxCount = 3
+                // 例如：2個綠色、2個紅色 -> maxCount = 2
+                // 例如：全部不同 -> maxCount = 1
+                const maxCount = Math.max(...Object.values(counts));
+
+                let score = 0;
+                let isPerfect = false;
+
+                if (maxCount === 4) {
+                    score = 100;
+                    isPerfect = true;
+                } else if (maxCount === 3) {
+                    score = 60;
+                } else if (maxCount === 2) {
+                    score = 30;
+                } else {
+                    score = 10; // 全部不同色，給予參與分
+                }
 
                 setResult({
                     complete: true,
-                    score: isPerfect ? 100 : 0,
+                    score: score,
                     isPerfect: isPerfect
                 });
             };
@@ -283,18 +307,37 @@
 
                             <div className="mt-8 text-center h-16 flex flex-col items-center justify-center">
                                 {result.complete ? (
-                                    <div className={`animate-bounce ${result.isPerfect ? 'text-yellow-500' : 'text-slate-400'}`}>
-                                        {result.isPerfect ? (
+                                    <div className={`animate-bounce ${result.isPerfect ? 'text-yellow-500' : 'text-slate-700'}`}>
+                                        {result.score === 100 && (
                                             <>
-                                                <div className="text-2xl font-black flex items-center gap-2 justify-center">
+                                                <div className="text-2xl font-black flex items-center gap-2 justify-center text-yellow-500">
                                                     <Trophy className="w-6 h-6" /> Perfect Set! +100
                                                 </div>
                                                 <div className="text-sm text-yellow-600">完美套裝達成！</div>
                                             </>
-                                        ) : (
+                                        )}
+                                        {result.score === 60 && (
                                             <>
-                                                <div className="text-xl font-bold">混搭風格 (0分)</div>
-                                                <div className="text-sm">再接再厲！</div>
+                                                <div className="text-2xl font-black flex items-center gap-2 justify-center text-indigo-500">
+                                                    Great! +60
+                                                </div>
+                                                <div className="text-sm text-indigo-600">運氣不錯！三個部位同色系</div>
+                                            </>
+                                        )}
+                                        {result.score === 30 && (
+                                            <>
+                                                <div className="text-2xl font-black flex items-center gap-2 justify-center text-blue-500">
+                                                    Good! +30
+                                                </div>
+                                                <div className="text-sm text-blue-600">還可以！兩個部位同色系</div>
+                                            </>
+                                        )}
+                                        {result.score === 10 && (
+                                            <>
+                                                <div className="text-2xl font-black flex items-center gap-2 justify-center text-slate-500">
+                                                    Mix Style +10
+                                                </div>
+                                                <div className="text-sm text-slate-400">混搭風格，感謝參與！</div>
                                             </>
                                         )}
                                     </div>
@@ -315,8 +358,10 @@
                                 </h3>
                                 <ul className="text-xs text-blue-700 mt-1 list-disc list-inside space-y-1">
                                     <li>每個部位只能抽一次，無法重來。</li>
-                                    <li>湊齊 <strong>4個同色系部位</strong> 獲得 100 分。</li>
-                                    <li>其他任意組合皆為 0 分，運氣與膽量的對決！</li>
+                                    <li>4個同色系：<strong>100分</strong> (完美)</li>
+                                    <li>3個同色系：<strong>60分</strong></li>
+                                    <li>2個同色系：<strong>30分</strong></li>
+                                    <li>全部不同色：<strong>10分</strong> (參與獎)</li>
                                 </ul>
                             </div>
 
